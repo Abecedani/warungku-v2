@@ -1,17 +1,12 @@
 @extends('layouts.dashboard-warung')
 
-@section('page-title', 'Profil Warung')
-@section('page-subtitle', 'Lihat informasi warung dan pengaturan akun')
+@section('page-title', 'Home Warung')
+@section('page-subtitle', 'Selamat datang di dashboard warungmu')
 
 @section('content')
-    <div class="content-card">
 
-        @if(session('success'))
-            <div class="alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
+    {{-- Status Warung --}}
+    <div class="content-card" style="margin-bottom: 24px;">
         <div class="profile-warung-header">
             <div class="profile-warung-photo">
                 @if($warung && $warung->foto)
@@ -21,102 +16,105 @@
                 @endif
             </div>
 
-            <div class="profile-warung-info">
+            <div class="profile-warung-info" style="flex: 1;">
                 <h2>{{ $warung->nama ?? 'Nama Warung Belum Diisi' }}</h2>
-
                 <div class="profile-badges">
                     <span class="profile-status {{ ($warung->status ?? 'tutup') === 'buka' ? 'status-open' : 'status-close' }}">
-                        {{ ucfirst($warung->status ?? 'tutup') }}
+                        <i class="bi bi-circle-fill" style="font-size: 8px;"></i>
+                        {{ ucfirst($warung->status ?? 'Tutup') }}
                     </span>
-
-                    <span class="profile-category">
-                        {{ ucfirst($warung->kategori ?? 'Kategori belum diisi') }}
-                    </span>
-                </div>
-
-                <p>
-                    {{ $warung->deskripsi ?? 'Deskripsi warung belum ditambahkan.' }}
-                </p>
-            </div>
-        </div>
-
-        <div class="profile-detail-grid">
-            <div class="profile-detail-item">
-                <small>Area Kampus</small>
-                <strong>{{ $warung->area_kampus ?? 'Belum diisi' }}</strong>
-            </div>
-
-            <div class="profile-detail-item">
-                <small>Alamat Detail</small>
-                <strong>{{ $warung->alamat ?? 'Belum diisi' }}</strong>
-            </div>
-
-            <div class="profile-detail-item">
-                <small>Kontak</small>
-                <strong>{{ $warung->kontak ?? 'Belum diisi' }}</strong>
-            </div>
-
-            <div class="profile-detail-item">
-                <small>Jam Operasional</small>
-                <strong>
-                    @if($warung && $warung->jam_buka && $warung->jam_tutup)
-                        {{ substr($warung->jam_buka, 0, 5) }} - {{ substr($warung->jam_tutup, 0, 5) }}
-                    @else
-                        Belum diisi
+                    @if(($warung->status_verifikasi ?? 'pending') === 'pending')
+                        <span class="profile-category" style="background:#fef9c3;color:#854d0e;">
+                            <i class="bi bi-clock"></i> Menunggu Verifikasi
+                        </span>
+                    @elseif(($warung->status_verifikasi ?? '') === 'disetujui')
+                        <span class="profile-category" style="background:#dcfce7;color:#15803d;">
+                            <i class="bi bi-patch-check-fill"></i> Terverifikasi
+                        </span>
+                    @elseif(($warung->status_verifikasi ?? '') === 'ditolak')
+                        <span class="profile-category" style="background:#fee2e2;color:#b91c1c;">
+                            <i class="bi bi-x-circle"></i> Ditolak
+                        </span>
                     @endif
-                </strong>
+                </div>
             </div>
 
-            <div class="profile-detail-item">
-                <small>Estimasi Penyajian</small>
-                <strong>{{ $warung->estimasi_waktu ?? 'Belum diisi' }}</strong>
-            </div>
+            @if($warung)
+            <form method="POST" action="{{ route('penjual.toggle-status') }}">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn-save-menu" style="background: {{ ($warung->status ?? 'tutup') === 'buka' ? '#dc2626' : '#16a34a' }};">
+                    <i class="bi bi-{{ ($warung->status ?? 'tutup') === 'buka' ? 'pause-circle' : 'play-circle' }}"></i>
+                    {{ ($warung->status ?? 'tutup') === 'buka' ? 'Tutup Warung' : 'Buka Warung' }}
+                </button>
+            </form>
+            @endif
         </div>
     </div>
 
-    <div class="content-card profile-menu-card">
-        <h3>Pengaturan Warung</h3>
+    {{-- Statistik --}}
+    <div class="summary-grid" style="margin-bottom: 24px;">
+        <div class="summary-card">
+            <div class="summary-icon">
+                <i class="bi bi-card-list"></i>
+            </div>
+            <h3>{{ $totalMenu }}</h3>
+            <p>Total Menu</p>
+        </div>
 
-        <div class="profile-menu-list">
-            <a href="{{ route('penjual.profil.edit') }}" class="profile-menu-item">
-                <div>
-                    <i class="bi bi-pencil-square"></i>
-                    <span>Edit Profil Warung</span>
-                </div>
-                <i class="bi bi-chevron-right"></i>
-            </a>
+        <div class="summary-card">
+            <div class="summary-icon" style="background:#dcfce7;color:#16a34a;">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h3>{{ $menuTersedia }}</h3>
+            <p>Menu Tersedia</p>
+        </div>
 
-            <a href="{{ route('profile.edit') }}" class="profile-menu-item">
-                <div>
-                    <i class="bi bi-shield-lock"></i>
-                    <span>Keamanan Akun dan Kata Sandi</span>
-                </div>
-                <i class="bi bi-chevron-right"></i>
-            </a>
+        <div class="summary-card">
+            <div class="summary-icon" style="background:#fef9c3;color:#ca8a04;">
+                <i class="bi bi-receipt"></i>
+            </div>
+            <h3>{{ $pesananMasuk }}</h3>
+            <p>Pesanan Masuk</p>
+        </div>
 
-            <a href="#" class="profile-menu-item">
-                <div>
-                    <i class="bi bi-info-circle"></i>
-                    <span>Tentang WarungKu</span>
-                </div>
-                <i class="bi bi-chevron-right"></i>
-            </a>
+        <div class="summary-card">
+            <div class="summary-icon" style="background:#ede9fe;color:#7c3aed;">
+                <i class="bi bi-bag-check"></i>
+            </div>
+            <h3>{{ $pesananSelesai }}</h3>
+            <p>Pesanan Selesai</p>
+        </div>
+    </div>
 
-            <a href="#" class="profile-menu-item">
-                <div>
-                    <i class="bi bi-question-circle"></i>
-                    <span>Panduan Penggunaan</span>
-                </div>
-                <i class="bi bi-chevron-right"></i>
+    {{-- Pesanan Terbaru --}}
+    <div class="content-card">
+        <div class="card-header-row">
+            <div>
+                <h2>Pesanan Terbaru</h2>
+                <p>{{ $pesananTerbaru->count() }} pesanan terakhir masuk</p>
+            </div>
+            <a href="{{ route('penjual.pesanan') }}" class="btn-add-menu">
+                <i class="bi bi-receipt"></i> Lihat Semua
             </a>
         </div>
 
-        <form action="{{ route('logout') }}" method="POST" class="logout-form">
-            @csrf
-            <button type="submit" class="btn-logout">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-            </button>
-        </form>
+        <div class="order-list">
+            @forelse($pesananTerbaru as $pesanan)
+                <div class="order-item">
+                    <div>
+                        <h4>{{ $pesanan->nama_pembeli ?? 'Pembeli' }}</h4>
+                        <p>{{ $pesanan->created_at ?? '-' }}</p>
+                    </div>
+                    <span class="order-status">{{ ucfirst($pesanan->status ?? '-') }}</span>
+                </div>
+            @empty
+                <p style="color: var(--gray); text-align: center; padding: 24px 0;">
+                    <i class="bi bi-inbox" style="font-size: 32px; display: block; margin-bottom: 8px;"></i>
+                    Belum ada pesanan masuk
+                </p>
+            @endforelse
+        </div>
     </div>
+
 @endsection
