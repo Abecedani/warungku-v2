@@ -6,17 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    
     public function up(): void
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->string('varian')->nullable()->after('deskripsi');
-        });
+        //
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->dropColumn('varian');
-        });
+        //
     }
 };
