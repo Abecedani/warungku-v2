@@ -14,6 +14,7 @@ class Warung extends Model
         'location_detail',
         'is_open',   
         'is_verified',
+        'rating',
     ];
 
     protected $casts = [

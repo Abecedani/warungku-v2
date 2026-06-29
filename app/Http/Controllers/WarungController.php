@@ -89,4 +89,50 @@ class WarungController extends Controller
         Storage::disk('public')->delete($image);
         return back()->with('success', 'Foto berhasil dihapus.');
     }
+
+    public function editAkun()
+    {
+        $user = auth()->user();
+        return view('warungs.akun', compact('user'));
+    }
+
+    public function updateAkun(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone_number' => 'nullable|string|max:20',
+            'current_password' => 'nullable|string',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $user->update($request->only('name', 'email', 'phone_number'));
+
+        if ($request->filled('password')) {
+            if (!\Hash::check($request->current_password, $user->password)) {
+                return back()->with('error', 'Password lama salah.');
+            }
+            $user->update(['password' => \Hash::make($request->password)]);
+        }
+
+        return back()->with('success', 'Akun berhasil diupdate!');
+    }
+
+    public function updateAvatar(Request $request)
+    {
+        $request->validate(['avatar' => 'required|image|max:2048']);
+
+        $user = auth()->user();
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $user->update(['avatar' => $path]);
+
+        return back()->with('success', 'Foto profil berhasil diupdate!');
+    }
 }

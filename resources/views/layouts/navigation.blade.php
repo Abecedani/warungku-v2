@@ -23,24 +23,77 @@
         @endguest
 
         @auth
-            {{-- PENJUAL & ADMIN --}}
-            @if(in_array(auth()->user()->role, ['penjual', 'admin']))
+            {{-- ADMIN --}}
+            @if(auth()->user()->role === 'admin')
                 <div class="hidden sm:flex sm:items-center">
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition">
-                                <div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm">
+                            <button
+                                class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-sm">
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                 </div>
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
                                 </svg>
                             </button>
                         </x-slot>
                         <x-slot name="content">
-                            <div class="px-4 py-2 text-xs text-gray-500 border-b">{{ auth()->user()->name }}</div>
-                            <x-dropdown-link :href="route('dashboard')">Dashboard</x-dropdown-link>
-                            <x-dropdown-link :href="route('profile.edit')">Profil</x-dropdown-link>
+                            <div class="px-4 py-2 border-b">
+                                <p class="text-sm font-semibold text-gray-800">{{ auth()->user()->name }}</p>
+                                <p class="text-xs text-gray-500">Administrator</p>
+                            </div>
+                            <x-dropdown-link :href="route('admin.dashboard')">Dashboard</x-dropdown-link>
+                            <x-dropdown-link :href="route('admin.warungs')">Kelola Warung</x-dropdown-link>
+                            <x-dropdown-link :href="route('admin.users')">Kelola User</x-dropdown-link>
+                            <x-dropdown-link :href="route('admin.transaksi')">Transaksi</x-dropdown-link>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('logout')"
+                                    onclick="event.preventDefault(); this.closest('form').submit();">
+                                    Keluar
+                                </x-dropdown-link>
+                            </form>
+                        </x-slot>
+                    </x-dropdown>
+                </div>
+            @endif
+
+            {{-- PENJUAL --}}
+            @if(auth()->user()->role === 'penjual')
+                <div class="hidden sm:flex sm:items-center">
+                    <x-dropdown align="right" width="48">
+                        <x-slot name="trigger">
+                            <button
+                                class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm">
+                                    @if(auth()->user()->avatar)
+                                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}"
+                                            class="w-8 h-8 rounded-full object-cover">
+                                    @else
+                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                    @endif
+                                </div>
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </x-slot>
+                        <x-slot name="content">
+                            <div class="px-4 py-2 border-b">
+                                <p class="text-sm font-semibold text-gray-800">{{ auth()->user()->name }}</p>
+                                <p class="text-xs text-gray-500">Penjual</p>
+                            </div>
+                            <x-dropdown-link :href="route('warungs.dashboard')">Dashboard</x-dropdown-link>
+                            <x-dropdown-link :href="route('warungs.pesanan')">Pesanan</x-dropdown-link>
+                            <x-dropdown-link :href="route('warungs.profil')">Profil Warung</x-dropdown-link>
+                            <x-dropdown-link :href="route('warungs.akun')">Akun Saya</x-dropdown-link>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
@@ -62,7 +115,8 @@
                     <a href="{{ route('cart.index') }}" class="relative text-gray-600 hover:text-orange-600 transition">
                         <i class="bi bi-cart3" style="font-size: 1.4rem;"></i>
                         @if($cartCount > 0)
-                            <span class="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                            <span
+                                class="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                                 {{ $cartCount }}
                             </span>
                         @endif
@@ -72,8 +126,13 @@
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="flex items-center gap-1 hover:opacity-80 transition">
-                                <div class="w-9 h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm">
-                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                <div
+                                    class="w-9 h-9 rounded-full overflow-hidden bg-orange-500 text-white flex items-center justify-center font-bold text-sm">
+                                    @if(auth()->user()->avatar)
+                                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}" class="w-9 h-9 object-cover">
+                                    @else
+                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                    @endif
                                 </div>
                             </button>
                         </x-slot>
@@ -82,9 +141,9 @@
                                 <p class="text-sm font-semibold text-gray-800">{{ auth()->user()->name }}</p>
                                 <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
                             </div>
-                            <x-dropdown-link :href="route('dashboard')">Dashboard</x-dropdown-link>
+                            <x-dropdown-link :href="route('home')">Beranda</x-dropdown-link>
                             <x-dropdown-link :href="route('pembeli.orders')">Pesanan Saya</x-dropdown-link>
-                            <x-dropdown-link :href="route('profile.edit')">Profil</x-dropdown-link>
+                            <x-dropdown-link :href="route('pembeli.profil')">Profil</x-dropdown-link>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
@@ -114,8 +173,7 @@
         @guest
             <a href="{{ route('login') }}"
                 class="block py-2 text-base font-medium text-gray-700 hover:text-orange-600">Masuk</a>
-            <a href="{{ route('register') }}"
-                class="block py-2 text-base font-medium text-orange-600">Daftar</a>
+            <a href="{{ route('register') }}" class="block py-2 text-base font-medium text-orange-600">Daftar</a>
         @endguest
 
         @auth
@@ -123,15 +181,45 @@
                 <p class="text-sm font-semibold text-gray-800">{{ auth()->user()->name }}</p>
                 <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
             </div>
-            <a href="{{ route('dashboard') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Dashboard</a>
-            @if(auth()->user()->role === 'pembeli')
-                <a href="{{ route('cart.index') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Keranjang</a>
-                <a href="{{ route('pembeli.orders') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Pesanan Saya</a>
+
+            {{-- Admin Mobile --}}
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ route('admin.dashboard') }}"
+                    class="block py-2 text-base text-gray-700 hover:text-orange-600">Dashboard</a>
+                <a href="{{ route('admin.warungs') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Kelola
+                    Warung</a>
+                <a href="{{ route('admin.users') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Kelola
+                    User</a>
+                <a href="{{ route('admin.transaksi') }}"
+                    class="block py-2 text-base text-gray-700 hover:text-orange-600">Transaksi</a>
             @endif
-            <a href="{{ route('profile.edit') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Profil</a>
+
+            {{-- Penjual Mobile --}}
+            @if(auth()->user()->role === 'penjual')
+                <a href="{{ route('warungs.dashboard') }}"
+                    class="block py-2 text-base text-gray-700 hover:text-orange-600">Dashboard</a>
+                <a href="{{ route('warungs.pesanan') }}"
+                    class="block py-2 text-base text-gray-700 hover:text-orange-600">Pesanan</a>
+                <a href="{{ route('warungs.profil') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Profil
+                    Warung</a>
+                <a href="{{ route('warungs.akun') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Akun
+                    Saya</a>
+            @endif
+
+            {{-- Pembeli Mobile --}}
+            @if(auth()->user()->role === 'pembeli')
+                <a href="{{ route('cart.index') }}"
+                    class="block py-2 text-base text-gray-700 hover:text-orange-600">Keranjang</a>
+                <a href="{{ route('pembeli.orders') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Pesanan
+                    Saya</a>
+                <a href="{{ route('pembeli.profil') }}"
+                    class="block py-2 text-base text-gray-700 hover:text-orange-600">Profil</a>
+            @endif
+
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="block w-full text-left py-2 text-base text-red-600 hover:text-red-700">Keluar</button>
+                <button type="submit"
+                    class="block w-full text-left py-2 text-base text-red-600 hover:text-red-700">Keluar</button>
             </form>
         @endauth
     </div>

@@ -36,13 +36,13 @@ class RatingController extends Controller
         }
 
         $order->load('warung');
-        $avgRating = MenuRating::whereHas(
-            'menu',
-            fn($q) =>
-            $q->where('warung_id', $order->warung_id)
-        )->avg('rating');
 
-        $order->warung->update(['rating' => round($avgRating, 1)]);
+        $avgRating = MenuRating::join('menus', 'menu_ratings.menu_id', '=', 'menus.id')
+            ->where('menus.warung_id', $order->warung_id)
+            ->avg('menu_ratings.rating');
+
+        $order->warung->rating = round($avgRating, 1);
+        $order->warung->save();
 
         return back()->with('success', 'Ulasan berhasil dikirim!');
     }

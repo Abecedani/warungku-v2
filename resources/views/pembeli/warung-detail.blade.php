@@ -61,16 +61,38 @@
         {{-- Warung Header --}}
         <div class="bg-white rounded-3 shadow-sm p-4 mb-4">
             <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h3 class="fw-bold mb-1">{{ $warung->name }}</h3>
-                    <p class="text-muted mb-1">
-                        <i class="bi bi-geo-alt me-1"></i>{{ $warung->location_detail }}
-                    </p>
-                    <p class="text-muted small mb-0">{{ $warung->description }}</p>
+
+                <div class="d-flex align-items-center">
+
+                    {{-- Avatar Penjual --}}
+                    @if($warung->user && $warung->user->avatar)
+                        <img src="{{ asset('storage/' . $warung->user->avatar) }}" alt="{{ $warung->name }}"
+                            class="rounded-circle me-3" style="width:75px;height:75px;object-fit:cover;">
+                    @else
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+                            style="width:75px;height:75px;">
+                            <i class="bi bi-shop fs-3 text-secondary"></i>
+                        </div>
+                    @endif
+
+                    <div>
+                        <h3 class="fw-bold mb-1">{{ $warung->name }}</h3>
+
+                        <p class="text-muted mb-1">
+                            <i class="bi bi-geo-alt me-1"></i>{{ $warung->location_detail }}
+                        </p>
+
+                        <p class="text-muted small mb-0">
+                            {{ $warung->description }}
+                        </p>
+                    </div>
+
                 </div>
+
                 <span class="{{ $warung->is_open ? 'badge-buka' : 'badge-tutup' }}">
                     {{ $warung->is_open ? '🟢 Buka' : '🔴 Tutup' }}
                 </span>
+
             </div>
         </div>
 

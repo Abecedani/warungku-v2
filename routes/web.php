@@ -9,13 +9,10 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PembeliController;
+use App\Http\Controllers\RatingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use App\Http\Controllers\RatingController;
-
-
-
 
 // ===== AUTH & LOGOUT =====
 Route::post('/logout', function (Request $request) {
@@ -43,10 +40,12 @@ Route::middleware(['auth'])->group(function () {
         };
     })->name('dashboard');
 
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // ===== PEMBELI =====
+    // Profil
+    Route::get('/profil-saya', [PembeliController::class, 'editProfil'])->name('pembeli.profil');
+    Route::patch('/profil-saya', [PembeliController::class, 'updateProfil'])->name('pembeli.profil.update');
+    Route::post('/profil-saya/avatar', [PembeliController::class, 'updateAvatar'])->name('pembeli.profil.avatar');
+    Route::delete('/profil-saya', [PembeliController::class, 'destroy'])->name('pembeli.profil.destroy');
 
     // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -64,7 +63,7 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('home')->with('error', 'Akses tidak valid.');
     })->name('checkout.buy-now.get');
 
-    // Riwayat Pesanan Pembeli
+    // Pesanan & Rating
     Route::get('/pesanan-saya', [PembeliController::class, 'orders'])->name('pembeli.orders');
     Route::post('/pesanan/{order}/rating', [RatingController::class, 'store'])->name('orders.rating');
 
@@ -76,26 +75,30 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', [WarungController::class, 'create'])->name('create');
         Route::post('/store', [WarungController::class, 'store'])->name('store');
         Route::post('/toggle', [WarungController::class, 'toggleStatus'])->name('toggle');
-        Route::delete('/menu/image/{image}', [MenuController::class, 'destroyImage'])->name('menu.image.destroy');
+
+        // Profil Warung
+        Route::get('/profil', [WarungController::class, 'profil'])->name('profil');
+        Route::put('/profil', [WarungController::class, 'updateProfil'])->name('profil.update');
+        Route::delete('/profil', [WarungController::class, 'destroyWarung'])->name('profil.destroy');
+
+        // Profil Akun Penjual
+        Route::get('/akun', [WarungController::class, 'editAkun'])->name('akun');
+        Route::patch('/akun', [WarungController::class, 'updateAkun'])->name('akun.update');
+        Route::post('/akun/avatar', [WarungController::class, 'updateAvatar'])->name('akun.avatar');
 
         // Pesanan
         Route::get('/pesanan', [OrderController::class, 'index'])->name('pesanan');
         Route::patch('/pesanan/{order}/status', [OrderController::class, 'updateStatus'])->name('pesanan.status');
-
-        // Profil
-        Route::get('/profil', [WarungController::class, 'profil'])->name('profil');
-        Route::put('/profil', [WarungController::class, 'updateProfil'])->name('profil.update');
-        Route::delete('/profil', [WarungController::class, 'destroyWarung'])->name('profil.destroy');
 
         // Menu
         Route::get('/menu', [MenuController::class, 'index'])->name('menu');
         Route::post('/menu', [MenuController::class, 'store'])->name('menu.store');
         Route::put('/menu/{menu}', [MenuController::class, 'update'])->name('menu.update');
         Route::delete('/menu/{menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
+        Route::delete('/menu/image/{image}', [MenuController::class, 'destroyImage'])->name('menu.image.destroy');
     });
 
     // ===== ADMIN =====
-// ===== ADMIN =====
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 

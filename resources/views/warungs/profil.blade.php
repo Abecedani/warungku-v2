@@ -5,132 +5,127 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/penjual-dashboard.css') }}">
 
-<main class="flex-grow-1 p-4" style="background: #fafafa; min-height: 100vh;">
-
-    {{-- Header --}}
+<div class="container-fluid p-4" style="background:#fafafa; min-height:100vh;">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold mb-0">Profil Warung</h4>
-            <p class="text-muted small mb-0">Kelola informasi warungmu</p>
+            <h3 class="fw-bold mb-1">🏪 Profil Warung</h3>
+            <p class="text-muted mb-0">Kelola informasi warung Anda.</p>
         </div>
     </div>
 
-    {{-- Alert --}}
     @if(session('success'))
-        <div class="alert alert-success rounded-3 border-0 shadow-sm mb-4">
-            {{ session('success') }}
-        </div>
+    <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4">{{ session('success') }}</div>
     @endif
 
-    @if($errors->any())
-        <div class="alert alert-danger rounded-3 border-0 shadow-sm mb-4">
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
+    @if(session('error'))
+    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">{{ session('error') }}</div>
     @endif
 
-    <div class="row g-4">
+    @if($warung)
+        @if(!$warung->is_verified)
+        <div class="alert border-0 shadow-sm rounded-3 d-flex align-items-center mb-4" style="background:#fff3cd;color:#856404;">
+            <i class="bi bi-hourglass-split fs-4 me-3"></i>
+            <div>
+                <strong>Menunggu Verifikasi</strong><br>
+                Warungmu sedang diperiksa oleh admin.
+            </div>
+        </div>
+        @else
+        <div class="alert border-0 shadow-sm rounded-3 d-flex align-items-center mb-4" style="background:#d4edda;color:#155724;">
+            <i class="bi bi-patch-check-fill fs-4 me-3"></i>
+            <div>
+                <strong>Warung Terverifikasi</strong><br>
+                Warungmu sudah tampil di halaman utama.
+            </div>
+        </div>
+        @endif
 
-        {{-- Form Edit Profil --}}
-        <div class="col-md-8">
-            <div class="bg-white rounded-3 shadow-sm p-4">
-                <h6 class="fw-bold mb-4">📋 Informasi Warung</h6>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4">Informasi Warung</h5>
                 <form method="POST" action="{{ route('warungs.profil.update') }}">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="mb-3">
-                        <label class="small fw-bold mb-1">Nama Warung</label>
-                        <input type="text" name="name" class="form-control"
-                            value="{{ old('name', $warung->name) }}" required>
+                    @csrf @method('PUT')
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Nama Warung</label>
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $warung->name) }}" required>
+                            @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Lokasi Detail</label>
+                            <input type="text" name="location_detail" class="form-control @error('location_detail') is-invalid @enderror" value="{{ old('location_detail', $warung->location_detail) }}" placeholder="Contoh: Stand dekat foodcourt" required>
+                            @error('location_detail')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="small fw-bold mb-1">Lokasi Detail</label>
-                        <input type="text" name="location_detail" class="form-control"
-                            value="{{ old('location_detail', $warung->location_detail) }}" required>
-                    </div>
-
                     <div class="mb-4">
-                        <label class="small fw-bold mb-1">Deskripsi</label>
-                        <textarea name="description" class="form-control" rows="4"
-                            placeholder="Ceritakan keunggulan warungmu...">{{ old('description', $warung->description) }}</textarea>
+                        <label class="form-label fw-semibold">Deskripsi</label>
+                        <textarea name="description" rows="4" class="form-control" placeholder="Ceritakan warungmu...">{{ old('description', $warung->description) }}</textarea>
                     </div>
-
-                    <button type="submit" class="btn btn-orange rounded-3 px-4">
-                        <i class="bi bi-check-circle me-2"></i>Simpan Perubahan
-                    </button>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-orange px-4 rounded-3">
+                            <i class="bi bi-check-circle me-1"></i> Simpan Perubahan
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        {{-- Info Sidebar --}}
-        <div class="col-md-4">
-
-            <div class="bg-white rounded-3 shadow-sm p-4 mb-4">
-                <h6 class="fw-bold mb-3">📊 Status Warung</h6>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-muted small">Status</span>
-                    <span class="badge {{ $warung->is_open ? 'bg-success' : 'bg-danger' }}">
-                        {{ $warung->is_open ? 'Buka' : 'Tutup' }}
-                    </span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-muted small">Verifikasi</span>
-                    <span class="badge {{ $warung->is_verified ? 'bg-success' : 'bg-warning text-dark' }}">
-                        {{ $warung->is_verified ? 'Terverifikasi' : 'Menunggu' }}
-                    </span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-muted small">Rating</span>
-                    <span class="fw-bold" style="color: var(--orange);">
-                        ⭐ {{ $warung->rating ?? '0.0' }}
-                    </span>
-                </div>
+        <div class="card border-danger shadow-sm rounded-4">
+            <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted small">Total Menu</span>
-                    <span class="fw-bold">{{ $warung->menus->count() }}</span>
+                    <div>
+                        <h5 class="fw-bold text-danger mb-1">Hapus Warung</h5>
+                        <p class="text-muted mb-0">Semua menu dan data warung akan ikut terhapus secara permanen.</p>
+                    </div>
+                    <button class="btn btn-outline-danger rounded-3" data-bs-toggle="modal" data-bs-target="#modalHapusWarung">
+                        <i class="bi bi-trash me-1"></i> Hapus Warung
+                    </button>
                 </div>
             </div>
-
-            <div class="bg-white rounded-3 shadow-sm p-4 border border-danger border-opacity-25">
-                <h6 class="fw-bold mb-1 text-danger">⚠️ Hapus warung</h6>
-                <p class="text-muted small mb-3">Tindakan ini tidak bisa dibatalkan.</p>
-                <button class="btn btn-outline-danger btn-sm rounded-3 w-100"
-                    data-bs-toggle="modal" data-bs-target="#modalHapus">
-                    <i class="bi bi-trash me-2"></i>Hapus
-                </button>
-            </div>
-
         </div>
-    </div>
+    @else
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-5">
+                <div class="display-3 mb-3">🏪</div>
+                <h4 class="fw-bold mb-2">Belum Ada Warung</h4>
+                <p class="text-muted mb-4">Daftarkan warungmu agar bisa mulai berjualan.</p>
+                <a href="{{ route('warungs.create') }}" class="btn btn-orange px-4 rounded-3">
+                    <i class="bi bi-shop me-1"></i> Buat Warung
+                </a>
+            </div>
+        </div>
+    @endif
+</div>
 
-</main>
-
-{{-- Modal Hapus --}}
-<div class="modal fade" id="modalHapus" tabindex="-1">
+@if(isset($warung) && $warung)
+<div class="modal fade" id="modalHapusWarung" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-3 border-0 shadow">
-            <div class="modal-header border-0 pb-0">
-                <h6 class="modal-title fw-bold text-danger">⚠️ Hapus Warung</h6>
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-danger fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Konfirmasi Hapus Warung
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p class="text-muted">Apakah kamu yakin ingin menghapus warung <strong>{{ $warung->name }}</strong>? Semua data menu dan pesanan akan ikut terhapus.</p>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Batal</button>
-                <form method="POST" action="{{ route('warungs.profil.destroy') }}">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger rounded-3 px-4">Ya, Hapus</button>
-                </form>
-            </div>
+            <form method="POST" action="{{ route('warungs.profil.destroy') }}">
+                @csrf @method('DELETE')
+                <div class="modal-body">
+                    <div class="alert alert-warning mb-4">Tindakan ini tidak dapat dibatalkan.</div>
+                    <p class="mb-2">Ketik nama warung untuk melanjutkan.</p>
+                    <input type="text" name="confirm_name" class="form-control" placeholder="{{ $warung->name }}" required>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i> Hapus Warung</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+@endif
 
 @endsection

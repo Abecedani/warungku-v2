@@ -1,7 +1,12 @@
 <aside class="sidebar bg-white p-3">
     <div class="d-flex align-items-center gap-2 p-3 rounded-3 mb-4" style="background: var(--orange-light);">
-        <div class="sidebar-avatar">
-            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+        <div class="sidebar-avatar" style="overflow: hidden;">
+            @if(auth()->user()->avatar)
+                <img src="{{ asset('storage/' . auth()->user()->avatar) }}"
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            @else
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+            @endif
         </div>
         <div class="overflow-hidden">
             <p class="fw-bold mb-0 small text-truncate">{{ auth()->user()->warung->name ?? 'Warung Saya' }}</p>
@@ -21,5 +26,8 @@
     </a>
     <a href="{{ route('warungs.profil') }}" class="{{ request()->routeIs('warungs.profil') ? 'active' : '' }}">
         <i class="bi bi-shop"></i> Profil Warung
+    </a>
+    <a href="{{ route('warungs.akun') }}" class="{{ request()->routeIs('warungs.akun') ? 'active' : '' }}">
+        <i class="bi bi-person"></i> Akun Saya
     </a>
 </aside>
