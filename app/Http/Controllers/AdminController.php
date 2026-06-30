@@ -47,6 +47,12 @@ class AdminController extends Controller
             'transactionMonthly'
         ));
     }
+    public function akun()
+    {
+        $this->checkAdmin();
+        $user = auth()->user();
+        return view('admin.akun', compact('user'));
+    }
 
     private function getUserGrowth($period)
     {
@@ -163,6 +169,46 @@ class AdminController extends Controller
             'api_key_wa' => Setting::get('api_key_wa', ''),
         ];
         return view('admin.pengaturan', compact('settings'));
+    }
+    public function updateAkun(Request $request)
+    {
+        $this->checkAdmin();
+        $user = auth()->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone_number' => 'nullable|string|max:20',
+            'current_password' => 'nullable|string',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone_number = $request->phone_number;
+
+        if ($request->filled('password')) {
+            if (!\Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Password lama salah.']);
+            }
+            $user->password = bcrypt($request->password);
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Akun berhasil diperbarui.');
+    }
+
+    public function updateAvatar(Request $request)
+    {
+        $this->checkAdmin();
+        $request->validate(['avatar' => 'required|image|max:2048']);
+
+        $user = auth()->user();
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $user->update(['avatar' => $path]);
+
+        return back()->with('success', 'Foto profil berhasil diperbarui.');
     }
 
     public function updatePengaturan(Request $request)

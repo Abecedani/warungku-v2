@@ -26,7 +26,11 @@
     <a href="{{ route('admin.transaksi') }}" class="{{ request()->routeIs('admin.transaksi') ? 'active' : '' }}">
         <i class="bi bi-receipt"></i> Transaksi
     </a>
+    <a href="{{ route('admin.akun') }}" class="{{ request()->routeIs('admin.akun') ? 'active' : '' }}">
+    <i class="bi bi-person-circle"></i> Akun Saya
+</a>
     <a href="{{ route('admin.pengaturan') }}" class="{{ request()->routeIs('admin.pengaturan') ? 'active' : '' }}">
         <i class="bi bi-gear"></i> Pengaturan
     </a>
+    
 </aside>

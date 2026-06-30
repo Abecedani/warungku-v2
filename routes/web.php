@@ -117,6 +117,12 @@ Route::middleware(['auth'])->group(function () {
         // Pengaturan
         Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('pengaturan');
         Route::post('/pengaturan', [AdminController::class, 'updatePengaturan'])->name('pengaturan.update');
+
+        //Akun
+        Route::get('/akun', [AdminController::class, 'akun'])->name('akun');
+        Route::patch('/akun', [AdminController::class, 'updateAkun'])->name('akun.update');
+        Route::post('/akun/avatar', [AdminController::class, 'updateAvatar'])->name('akun.avatar');
+
     });
 });
 

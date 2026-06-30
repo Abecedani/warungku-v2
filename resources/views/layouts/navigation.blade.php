@@ -49,7 +49,7 @@
                             <x-dropdown-link :href="route('admin.dashboard')">Dashboard</x-dropdown-link>
                             <x-dropdown-link :href="route('admin.warungs')">Kelola Warung</x-dropdown-link>
                             <x-dropdown-link :href="route('admin.users')">Kelola User</x-dropdown-link>
-                            <x-dropdown-link :href="route('admin.transaksi')">Transaksi</x-dropdown-link>
+                            <x-dropdown-link :href="route('admin.akun')">Akun Saya</x-dropdown-link>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
@@ -192,6 +192,8 @@
                     User</a>
                 <a href="{{ route('admin.transaksi') }}"
                     class="block py-2 text-base text-gray-700 hover:text-orange-600">Transaksi</a>
+                <a href="{{ route('admin.akun') }}" class="block py-2 text-base text-gray-700 hover:text-orange-600">Akun
+                    Saya</a>
             @endif
 
             {{-- Penjual Mobile --}}
